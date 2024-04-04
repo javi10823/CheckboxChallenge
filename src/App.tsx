@@ -1,35 +1,60 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useMemo, useState } from "react";
+import "./App.css";
 
-function App() {
-  const [count, setCount] = useState(0)
+const countries = ["India", "USA", "France"];
+
+const App = () => {
+  const [checked, setChecked] = useState<Set<string>>(new Set());
+
+  const onSelectAll = () => {
+    setChecked((prev) =>
+      prev.size < countries.length ? new Set(countries) : new Set()
+    );
+  };
+
+  const onCheck = (country: string) => {
+    setChecked((prev) => {
+      const newChecked = new Set(prev);
+
+      if (newChecked.has(country)) {
+        newChecked.delete(country);
+      } else {
+        newChecked.add(country);
+      }
+
+      return newChecked;
+    });
+  };
+
+  const allChecked = useMemo(
+    () => checked.size === countries.length,
+    [checked]
+  );
+
+  const renderCheckbox = useMemo(
+    () =>
+      countries.map((country) => (
+        <label key={country}>
+          <input
+            type="checkbox"
+            onChange={() => onCheck(country)}
+            checked={checked.has(country)}
+          />
+          {country}
+        </label>
+      )),
+    [checked]
+  );
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <div className="checkbox-container">
+      <label>
+        <input type="checkbox" onClick={onSelectAll} checked={allChecked} />
+        Select All
+      </label>
+      {renderCheckbox}
+    </div>
+  );
+};
 
-export default App
+export default App;
